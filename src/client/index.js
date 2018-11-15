@@ -9,4 +9,14 @@ import './WebWorker';
 const history = createBrowserHistory();
 const store = createReduxStore(history);
 
+const notifyBrowserPainted = () => {
+  requestAnimationFrame(() => {
+    console.log('browser painted');
+    notifyBrowserPainted();
+  });
+}
+
+setInterval(() => console.log('1 second passed...'), 1000);
+notifyBrowserPainted();
+
 ReactDOM.render(<App history={history} store={store} />, document.getElementById('root'));

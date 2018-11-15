@@ -1,8 +1,8 @@
 .stutterer {
-  transform: scale(1.5);
+  transform: scale(1);
   height: 310px;
   width: 310px;
-  position: absolute;
+  /* position: absolute; */
   left: 0;
   right: 0;
   top: -256px;

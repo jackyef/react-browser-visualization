@@ -9,19 +9,7 @@ const sharedModule = require('./shared.config');
 
 module.exports = {
   entry: {
-    client: ['./src/client/index.js'],
-    vendors: [
-      'babel-polyfill',
-      'react',
-      'react-dom',
-      'redux',
-      'react-emotion',
-      'react-loadable',
-      'connected-react-router',
-      'react-redux',
-      'react-router',
-      'react-router-dom',
-    ],
+    client: ['babel-polyfill', './src/client/index.js'],
   },
   target: 'web', //tells webpack that this build will be run in browsers
   output: {

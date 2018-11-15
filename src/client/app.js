@@ -1,6 +1,5 @@
 import React from 'react';
 import { object } from 'prop-types';
-import { hot } from 'react-hot-loader';
 import { HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 import Routes from './routes';
@@ -20,4 +19,4 @@ App.propTypes = {
   store: object.isRequired,
 };
 
-export default hot(module)(App);
+export default App;
