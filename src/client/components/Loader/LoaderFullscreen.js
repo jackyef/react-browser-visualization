@@ -1,21 +1,21 @@
 import React from 'react';
-import { string } from 'prop-types';
-import { LoaderContainer } from './styles';
 
-const LoaderFullscreen = ({ color }) => {
+import { loaderContainer } from './styles';
+
+const LoaderFullscreen = () => {
   return (
-    <LoaderContainer color={color} fullscreen>
-      <div />
-    </LoaderContainer>
+    <div className={loaderContainer}>
+      <div>
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+    </div>
   )
-};
-
-LoaderFullscreen.propTypes = {
-  color: string,
-};
-
-LoaderFullscreen.defaultProps = {
-  color: '#e7a7f3',
 };
 
 export default LoaderFullscreen;

@@ -1,21 +1,21 @@
 import React from 'react';
-import { string } from 'prop-types';
-import { LoaderContainer } from './styles';
 
-const LoaderBlock = ({ color }) => {
+import { blockLoaderContainer } from './styles';
+
+const Loader = () => {
   return (
-    <LoaderContainer color={color} block>
-      <div />
-    </LoaderContainer>
+    <div className={blockLoaderContainer}>
+      <div>
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+    </div>
   )
 };
 
-LoaderBlock.propTypes = {
-  color: string,
-};
-
-LoaderBlock.defaultProps = {
-  color: '#e7a7f3',
-};
-
-export default LoaderBlock;
+export default Loader;

@@ -98,6 +98,7 @@ module.exports = {
     ],
   },
   globals: {
+    WebWorker: true,
     // put global variables here so eslint knows about them
     // myGlobalConst: true,
   },

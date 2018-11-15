@@ -4,6 +4,7 @@ import { createBrowserHistory } from 'history';
 
 import App from './app';
 import createReduxStore from './redux';
+import './WebWorker';
 
 const history = createBrowserHistory();
 const store = createReduxStore(history);

@@ -1,6 +1,6 @@
 import styled from 'react-emotion';
 
-export const HomeContainer = styled.div`
+export const Container = styled.div`
   display: flex;
   padding: 16px;
   flex-direction: column;

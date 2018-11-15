@@ -1,14 +1,17 @@
 import React from 'react';
 import { object } from 'prop-types';
 import { hot } from 'react-hot-loader';
+import { HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
-import RouterProvider from './routes';
+import Routes from './routes';
 
 const App = ({ history, store }) => {
   return (
-    <Provider store={store}>
-      <RouterProvider history={history} />
-    </Provider>
+    <HelmetProvider>
+      <Provider store={store}>
+        <Routes history={history} />
+      </Provider>
+    </HelmetProvider>
   );
 };
 
