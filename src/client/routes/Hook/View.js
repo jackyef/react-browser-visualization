@@ -1,22 +1,20 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 import { triggerJank } from '../../helpers';
 import { Container } from './styles';
+import Wallpaper from '../../components/Wallpaper';
 
-const HookView = () => {
+const HookView = ({ history }) => {
   // counter 1 region
   const [counter, setCounter] = useState(0);
   const incrementCounter = () => {
     setCounter(counter + 1);
-    // incrementCounter2();
-    // setTimeout(incrementCounter2, 100);
   };
 
   useLayoutEffect(() => {
-    triggerJank(5000);
-
-    // incrementCounter();
+    if (counter) {
+      triggerJank(5000);
+    }
 
     console.log('counter effect called');
 
@@ -33,7 +31,9 @@ const HookView = () => {
   }
 
   useEffect(() => {
-    triggerJank(5000);
+    if (counter2) {
+      triggerJank(5000);
+    }
 
     console.log('counter2 effect called');
 
@@ -81,12 +81,14 @@ const HookView = () => {
   return (
     <Container>
       <h1>Hook</h1>
-      <button><Link to="/not-hook">go to non-hook version</Link></button> <br/>
-      <button onClick={incrementCounter}>increment counter: {counter}</button> <br/>
-      <button onClick={incrementCounter2}>increment counter2: {counter2}</button> <br />
+      <button onClick={() => history.push('/not-hook')}>go to non-hook version</button> <br/>
+      <button onClick={incrementCounter}>trigger jank with useLayoutEffect(): {counter}</button> <br/>
+      <button onClick={incrementCounter2}>trigger jank with useEffect(): {counter2}</button> <br />
       <button onClick={toggleInfiniteSetState}>infinite setState: {isInfinite ? 'ON' : 'OFF'}</button> <br />
       <button onClick={doAsyncStuff}>{asyncData.loading ? 'loading...' : 'do async stuffs'}</button> <br />
       {asyncData.success && !asyncData.loading ? 'success' : ''}
+
+      <Wallpaper />
     </Container>
   )
 }

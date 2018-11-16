@@ -7,6 +7,7 @@ import { AboutView } from './About';
 import { HomeView } from './Home';
 import { HookView } from './Hook';
 import { NotHookView } from './NotHook';
+import { RuntimeVizView } from './RuntimeViz';
 import ClockContainer from '../components/Clock/Container';
 
 const AppContainer = styled.div`
@@ -30,6 +31,7 @@ const RouterProvider = ({ history }) => {
             <Route exact path="/" component={HomeView} />
             <Route path="/hook" component={HookView} />
             <Route path="/not-hook" component={NotHookView} />
+            <Route path="/runtime-viz" component={RuntimeVizView} />
             <Route path="/about" component={AboutView} />
           </Switch>
         </MainContent>

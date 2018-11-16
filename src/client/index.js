@@ -16,7 +16,7 @@ const notifyBrowserPainted = () => {
   });
 }
 
-setInterval(() => console.log('1 second passed...'), 1000);
-notifyBrowserPainted();
+// setInterval(() => console.log('1 second passed...'), 1000);
+// notifyBrowserPainted();
 
 ReactDOM.render(<App history={history} store={store} />, document.getElementById('root'));

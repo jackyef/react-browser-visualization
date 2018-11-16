@@ -1,6 +1,7 @@
 
 import React from 'react';
 import styled from 'react-emotion';
+import { withRouter } from 'react-router-dom';
 
 import Clock from './Official';
 import { triggerJank } from '../../helpers';
@@ -31,15 +32,26 @@ const Container = styled.div`
   }
 `;
 
-const ClockContainer = () => {
+const ClockContainer = ({ history, location }) => {
+  const isAtRuntimeViz = location.pathname.indexOf('runtime-viz') > -1;
+  const redirectText = isAtRuntimeViz ? 'Go back home' : 'Go to runtime-viz';
+  const handleRedirect = () => {
+    if (isAtRuntimeViz) {
+      history.push('/');
+    } else {
+      history.push('/runtime-viz');
+    }
+  }
+
   return (
     <Container>
       <Clock />
       <div>
         <button onClick={() => triggerJank(5000)}>Trigger Jank</button>
+        <button onClick={handleRedirect}>{redirectText}</button>
       </div>
     </Container>
   )
 }
 
-export default ClockContainer;
+export default withRouter(ClockContainer);

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { triggerJank } from '../../helpers';
 import { Container } from './styles';
+import Wallpaper from '../../components/Wallpaper';
 
 class NotHookView extends React.Component {
   constructor(props) {
@@ -20,22 +21,25 @@ class NotHookView extends React.Component {
     },
   };
 
-  componentDidUpdate() {
-    const { isInfinite } = this.state;
+  componentDidUpdate(_, prevState) {
+    const { isInfinite, counter2 } = this.state;
 
     if (isInfinite && this.isInfinite) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+      // requestAnimationFrame(() => {
+      //   requestAnimationFrame(() => {
           triggerJank();
           this.setState({ isInfinite: true });
-        });
-      });
+      //   });
+      // });
+    } else if (counter2 !== prevState.counter2) {
+      // requestAnimationFrame(() => {
+      //   requestAnimationFrame(() => {
+          triggerJank(5000);
+      //   });
+      // });
+    } else {
+      triggerJank(5000);
     }
-    // setTimeout(() => { 
-    //   console.log('timeout called');
-    //   this.incrementCounter();
-    // }, 0);
-    // this.incrementCounterAfterNextPaint();
   }
 
   incrementCounterAfterNextPaint = () => {
@@ -68,17 +72,20 @@ class NotHookView extends React.Component {
 
   render() {
     const { counter, counter2, asyncData, isInfinite } = this.state;
+    const { history } = this.props;
     const { incrementCounter, incrementCounter2, doAsyncStuff, toggleInfiniteSetState } = this;
 
     return (
       <Container>
         <h1>Not Hook</h1>
-        <button><Link to="/hook">go to hook version</Link></button> <br/>
+        <button onClick={() => history.push('/hook')}>go to hook version</button> <br/>
         <button onClick={incrementCounter}>increment counter: {counter}</button> <br/>
         <button onClick={incrementCounter2}>increment counter2: {counter2}</button> <br />
         <button onClick={toggleInfiniteSetState}>infinite setState: {isInfinite && this.isInfinite ? 'ON' : 'OFF'}</button> <br />
         <button onClick={doAsyncStuff}>{asyncData.loading ? 'loading...' : 'do async stuffs'}</button> <br />
         {asyncData.success && !asyncData.loading ? 'success' : ''}
+
+        <Wallpaper />
       </Container>
     )
   }
