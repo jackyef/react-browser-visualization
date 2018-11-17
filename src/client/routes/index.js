@@ -19,7 +19,8 @@ const AppContainer = styled.div`
 `;
 
 const MainContent = styled.div`
-  flex: 1;
+  flex: 1 1 auto;
+  overflow: hidden;
 `;
 
 const RouterProvider = ({ history }) => {

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'react-emotion';
 import { withRouter } from 'react-router-dom';
 
@@ -33,6 +33,25 @@ const Container = styled.div`
 `;
 
 const ClockContainer = ({ history, location }) => {
+  const [display, setDisplay] = useState(false);
+  const handleKeyup = e => {
+    if (e.shiftKey && e.which === 220) {
+      setDisplay(!display);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('keyup', handleKeyup);
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyup);
+    }
+  });
+
+  if (!display) {
+    return null;
+  }
+
   const isAtRuntimeViz = location.pathname.indexOf('runtime-viz') > -1;
   const redirectText = isAtRuntimeViz ? 'Go back home' : 'Go to runtime-viz';
   const handleRedirect = () => {
