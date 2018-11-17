@@ -11,6 +11,8 @@ class Home extends Component {
         <button onClick={() => history.push('/hook')}>Go to /hook</button>
         <br />
         <button onClick={() => history.push('/not-hook')}>Go to /not-hook</button>
+        <br />
+        <div>Press <code>shift + \</code> to show the render clock</div>
       </Container>
     )
   }

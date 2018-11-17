@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { get } from 'lodash';
 import {
   Container,
   visualizerContainer,
@@ -9,7 +8,6 @@ import {
   row,
   column,
   backgroundBlue,
-  backgroundPurple,
   backgroundOrange,
   backgroundGreen,
   backgroundRed,
@@ -19,6 +17,12 @@ import {
   LoopImage,
   flexCenter,
   width400,
+  padding8,
+  padding16,
+  marginLeft16,
+  inputContainer,
+  Code,
+  alignSelfLeft,
 } from './styles';
 
 import refreshIcon from './assets/refresh-button.svg';
@@ -43,7 +47,7 @@ const createTask = (type = 'basic', title = '') => {
       color = '#e87700';
       break;
     case 'render':
-      title = title || 'frame #1';
+      title = title || 'Frame #1';
       color = '#700591';
       break;
   }
@@ -56,70 +60,72 @@ const createTask = (type = 'basic', title = '') => {
 };
 
 const RuntimeVizView = () => {
-  const [callStack, setCallStack] = useState([createTask('basic')]);
-  const [callbackStack, setCallbackStack] = useState([]);
-  const [environmentStack, setEnvironmentStack] = useState([]);
-  const [renderQueue, setRenderQueue] = useState([
-    createTask('render', 'frame #1'),
-    createTask('render', 'frame #2'),
-    createTask('render', 'frame #3'),
-    createTask('render', 'frame #4'),
-    createTask('render', 'frame #5'),
-    createTask('render', 'frame #6'),
-    createTask('render', 'frame #7'),
-  ]);
-  const [tickSpeed, setTickSpeed] = useState(300);
-  const [tickCount, setTickCount] = useState(0);
+  const [state, setState] = useState({
+    callStack: [],
+    callbackStack: [],
+    environmentStack: [],
+    renderQueue: [
+      createTask('render', 'Frame #1'),
+      createTask('render', 'Frame #2'),
+      createTask('render', 'Frame #3'),
+      createTask('render', 'Frame #4'),
+      createTask('render', 'Frame #5'),
+      createTask('render', 'Frame #6'),
+      createTask('render', 'Frame #7'),
+    ],
+    renderQueueInfo: {
+      text: '',
+      type: '',
+    },
+    paused: true,
+    tickSpeed: 300,
+    tickCount: 0,
+  });
   const tickTimeoutRef = useRef(null);
-  const [renderSpeed, setRenderSpeed] = useState(400);
-  console.log('render', { callStack, callbackStack, environmentStack });
-  
+
   const addTask = (type = 'basic', stack = 'call', title = '', number = 1) => {
     const createdTask = [];
+    const newState = { ...state };
 
     for (let i = 0; i < number; i++) {
       createdTask.push(createTask(type, title));
     }
 
     if (stack === 'call') {
-      setCallStack([...callStack, ...createdTask]);
+      newState.callStack = [...state.callStack, ...createdTask];
     } else if (stack === 'callback') {
-      setCallbackStack([...callbackStack, ...createdTask]);
+      newState.callbackStack = [...state.callbackStack, ...createdTask];
     } else {
-      setEnvironmentStack([...environmentStack, ...createdTask]);
+      newState.environmentStack = [...state.environmentStack, ...createdTask];
     }
 
+    setState(newState);
     clearTimeout(tickTimeoutRef.current);
     tickTimeoutRef.current = null;
   };
 
-  const processTick = () => {
-    const clonedCallStack = [...callStack];
-    const clonedEnvironmentStack = [...environmentStack];
-    const clonedCallbackStack = [...callbackStack];
-    const clonedRenderQueue = [...renderQueue];
-    let shouldContinue = true;
-    let shouldRender = true;
-    let shouldOnlyRender = tickCount % 4 !== 0;
-
+  const _processTick = () => {
+    const clonedCallStack = [...state.callStack];
+    const clonedEnvironmentStack = [...state.environmentStack];
+    const clonedCallbackStack = [...state.callbackStack];
+    const clonedRenderQueue = [...state.renderQueue];
+    let newRenderQueueInfo = { ...state.renderQueueInfo };
     let shiftedCallStackTask;
 
-    console.log('tick count', tickCount);
-    
-    /*
-      1 2 3 4 5 6 7 8 9 10 11 12
+    console.log('tick count', state.tickCount);
 
-      anggap 1 tick = 4ms
-      coba masukin render task ke main thread tiap 4 tick
+    /*
+      assume 1 tick = 4ms
+      We'll try to enqueueRenderTask every 4 ticks
     */
 
-    let tryToEnqueueRenderTask = tickCount % 4 === 0;
+    let tryToEnqueueRenderTask = state.tickCount % 4 === 0;
     let frameDropped = false;
-    const isCallStackEmpty = callStack.length < 1;
+    const isCallStackEmpty = clonedCallStack.length < 1;
 
     if (tryToEnqueueRenderTask) {
       // take out next frame render task
-      const shiftRenderQueue = clonedRenderQueue.shift();
+      const shiftedRenderQueue = clonedRenderQueue.shift();
 
       // generate task for next frame
       const newFrameNumber = Number(clonedRenderQueue[clonedRenderQueue.length - 1].title.split('#')[1]) + 1;
@@ -128,26 +134,29 @@ const RuntimeVizView = () => {
 
       if (isCallStackEmpty) {
         // enqueue render to main thread
-        clonedCallStack.push(createTask('render', `render ${shiftRenderQueue.title}`));
-
+        clonedCallStack.push(createTask('render', shiftedRenderQueue.title));
       } else {
         // drop frame
         frameDropped = true;
+        newRenderQueueInfo.text = `${shiftedRenderQueue.title} dropped!`;
+        newRenderQueueInfo.type = 'error';
       }
-    } 
+    }
 
     // move timeouts from environment thread to callback stack
     const removedEnvironmentTaskIndex = clonedEnvironmentStack.findIndex(task => task.type !== 'event');
     const removedEnvironmentTask = clonedEnvironmentStack[removedEnvironmentTaskIndex];
+    let movedEnvironmentTask = false;
 
     if (removedEnvironmentTask) {
       const { type } = removedEnvironmentTask;
 
-      clonedEnvironmentStack.splice(removedEnvironmentTaskIndex, 1); 
+      clonedEnvironmentStack.splice(removedEnvironmentTaskIndex, 1);
       clonedCallbackStack.push(createTask(`${type}Callback`, `${type === 'event' ? 'click' : type}Callback()`));
+      movedEnvironmentTask = true;
     }
-    
-    if (!tryToEnqueueRenderTask || frameDropped){
+
+    if (!tryToEnqueueRenderTask || frameDropped) {
       // only do this if we are not trying to enqueue render task
       // do the usual process
       // 1. Take oldest task from the main thread
@@ -158,6 +167,11 @@ const RuntimeVizView = () => {
 
         if (type === 'render' || type === 'basic') {
           // do nothing, we only need to pop it
+
+          if (type === 'render') {
+            newRenderQueueInfo.text = `${shiftedCallStackTask.title} painted!`;
+            newRenderQueueInfo.type = 'success';
+          }
         } else {
           // could be setTimeout or creating eventListener, or remove event listener
           if (type === 'eventRemove') {
@@ -166,7 +180,7 @@ const RuntimeVizView = () => {
 
             if (index > -1) {
               clonedEnvironmentStack.splice(index, 1);
-            }    
+            }
           } else if (type.indexOf('Callback') < 0) {
             // if it isn't callback
             // queue it to the environment thread to handle it
@@ -176,110 +190,41 @@ const RuntimeVizView = () => {
       }
 
       // 2. enqueue task from callback task to main thread, if it's empty at the start at this tick
-      if (isCallStackEmpty) {
+      if (isCallStackEmpty && !movedEnvironmentTask) {
         const shiftedCallbackStack = clonedCallbackStack.shift();
-        
+
         if (shiftedCallbackStack) {
           const { type } = shiftedCallbackStack;
-  
+
           clonedCallStack.push(createTask(type, `${type}()`));
         }
       }
     }
 
-    // if (shouldOnlyRender) {
-    //   if (get(clonedCallStack, '[0].type') === 'render') {
-    //     poppedCallStack = clonedCallStack.pop();
-    //   }
-    // } else {
-    //   poppedCallStack = clonedCallStack.pop();
-    // }
+    setState({
+      ...state,
+      callStack: clonedCallStack,
+      callbackStack: clonedCallbackStack,
+      environmentStack: clonedEnvironmentStack,
+      renderQueue: clonedRenderQueue,
+      renderQueueInfo: newRenderQueueInfo,
+      tickCount: state.tickCount + 1,
+    });
+  };
 
-    // const isCallStackEmpty = callStack.length < 1;
-    
-    // if (poppedCallStack) {
-    //   const { type } = poppedCallStack;
-  
-    //   if (type === 'event' || type === 'timeout') {
-    //     // add to environment thread, let env handle the task
-    //     clonedEnvironmentStack.push(createTask(type));
-    //   }
+  const processTick = () => {
+    if (!state.paused) {
+      _processTick();
+    }
 
-    //   if (type === 'eventRemove') {
-    //     // remove one eventListener from env thread
-    //     const index = clonedEnvironmentStack.findIndex(task => task.type === 'event');
-
-    //     if (index > -1) {
-    //       clonedEnvironmentStack.splice(index, 1);
-    //     }
-    //   }
-
-    //   if (type === 'render') {
-    //     shouldRender = false;
-    //   }
-    // }
-
-    // if (shouldRender) {
-    //   const shiftRenderQueue = clonedRenderQueue.shift();
-    //   const newFrameNumber = Number(clonedRenderQueue[clonedRenderQueue.length - 1].title.split('#')[1]) + 1;
-  
-    //   clonedRenderQueue.push(createTask('render', `frame #${newFrameNumber}`));
-  
-    //   if (isCallStackEmpty && shouldContinue) {
-    //     // if call stack is empty, move one task from render queue to call stack
-    //     clonedCallStack.push(createTask('render', `render ${shiftRenderQueue.title}`));
-    //     shouldContinue = false;
-    //   }
-    // }
-
-    // if (!shouldOnlyRender) {
-    //   if (isCallStackEmpty && shouldContinue) {
-    //     // if call stack is empty, move one task from callback queue to call stack
-    //     const poppedCallbackStack = clonedCallbackStack.pop();
-        
-    //     if (poppedCallbackStack) {
-    //       const { type } = poppedCallbackStack;
-  
-    //       clonedCallStack.push(createTask(type, `${type}()`));
-    //       shouldContinue = false;
-    //     }
-    //   }
-    // }
-
-    // if (isCallStackEmpty && shouldContinue) {
-    //   // assume that timeout triggered,
-    //   // move task from environment stack to callback stack
-    //   const poppedEnvironmentStackIndex = clonedEnvironmentStack.findIndex(task => task.type !== 'event');
-    //   const poppedEnvironmentStack = clonedEnvironmentStack[poppedEnvironmentStackIndex];
-
-    //   if (poppedEnvironmentStack) {
-    //     const { type } = poppedEnvironmentStack;
-
-    //     clonedEnvironmentStack.splice(poppedEnvironmentStackIndex, 1); 
-    //     clonedCallbackStack.push(createTask(`${type}Callback`, `${type === 'event' ? 'click' : type}Callback()`));
-    //     shouldContinue = false;
-    //   }
-    // }
-
-    setCallStack(clonedCallStack);
-    setCallbackStack(clonedCallbackStack);
-    setEnvironmentStack(clonedEnvironmentStack);
-    setRenderQueue(clonedRenderQueue);
-    setTickCount(tickCount + 1);
-   
-    console.log('tick processed');
-    // set next tick
+    // clear timeout
     clearTimeout(tickTimeoutRef.current);
     tickTimeoutRef.current = null;
-    // setTickTimeout(null);
-  }
+  };
 
   useEffect(() => {
     if (!tickTimeoutRef.current) {
-      tickTimeoutRef.current = setTimeout(processTick, tickSpeed);
-      // console.log('ticktimeout set', { timeout: tickTimeoutRef.current, tickSpeed });
-    } else {
-      // console.log('not setting ticktimeout', { timeout: tickTimeoutRef.current, tickSpeed });
+      tickTimeoutRef.current = setTimeout(processTick, state.tickSpeed);
     }
 
     return () => {
@@ -291,10 +236,26 @@ const RuntimeVizView = () => {
   });
 
   const handleOurButtonClick = () => {
-    const numberOfListeners = environmentStack.filter(task => task.type === 'event').length;
+    const numberOfListeners = state.environmentStack.filter(task => task.type === 'event').length;
 
     addTask('eventCallback', 'callback', 'clickCallback()', numberOfListeners);
-  }
+  };
+
+  const handleUpdateTickSpeed = e => {
+    setState({
+      ...state,
+      tickSpeed: e.target.value,
+    });
+  };
+
+  const handleTogglePlayPause = () => {
+    setState({
+      ...state,
+      paused: !state.paused,
+    });
+    clearTimeout(tickTimeoutRef.current);
+    tickTimeoutRef.current = null;
+  };
 
   return (
     <Container>
@@ -311,18 +272,39 @@ const RuntimeVizView = () => {
             <button className={backgroundOrange} onClick={() => addTask('event', 'call', 'button.onClick(cb)')}>
               Add onClick listener to button
             </button>
-            <button className={backgroundOrange} onClick={() => addTask('eventRemove', 'call', 'button.removeOnClick(cb)')}>
+            <button
+              className={backgroundOrange}
+              onClick={() => addTask('eventRemove', 'call', 'button.removeOnClick(cb)')}
+            >
               Remove onClick listener to button
             </button>
-            <code>----------------</code><br/>
+            <code>----------------</code>
+            <br />
             <button className={backgroundRed} onClick={handleOurButtonClick}>
               Our button
+            </button>
+            <code>----------------</code>
+            <br />
+            <div className={alignSelfLeft}>Process tick rate:</div>
+            <div className={inputContainer}>
+              <input
+                disabled={!state.paused}
+                type="number"
+                onChange={handleUpdateTickSpeed}
+                value={state.tickSpeed}
+                step={100}
+                min={100}
+              />
+              <div>ms</div>
+            </div>
+            <button className={state.paused ? backgroundGreen : backgroundRed} onClick={handleTogglePlayPause}>
+              {state.paused ? 'Play' : 'Pause'}
             </button>
           </div>
           <div className={`${column} ${width400}`}>
             <div>Main Thread</div>
             <div className={callStackClass}>
-              {callStack.map((task, i) => (
+              {state.callStack.map((task, i) => (
                 <TaskBlock key={i} color={task.color}>
                   <code>{task.title}</code>
                 </TaskBlock>
@@ -330,34 +312,37 @@ const RuntimeVizView = () => {
             </div>
           </div>
 
-          <div className={`${column} ${fillRemaining}`}>
-            <div>Environment Thread</div>
+          <div className={`${column} ${fillRemaining} ${padding8} ${marginLeft16}`}>
+            <div className={padding8}>Environment Thread</div>
             <div className={callQueueClass}>
-              {environmentStack.map((task, i) => (
+              {state.environmentStack.map((task, i) => (
                 <QueueTaskBlock key={i} color={task.color}>
                   <code>{task.title}</code>
                 </QueueTaskBlock>
               ))}
             </div>
-            <div>Callback queue</div>
+            <div className={padding8}>Callback queue</div>
             <div className={callQueueClass}>
-              {callbackStack.map((task, i) => (
+              {state.callbackStack.map((task, i) => (
                 <QueueTaskBlock key={i} color={task.color}>
                   <code>{task.title}</code>
                 </QueueTaskBlock>
               ))}
             </div>
-            <div className={flexCenter}>
-              <LoopImage src={refreshIcon} animating rotateSpeed={tickSpeed} />
+            <div className={`${flexCenter} ${padding8}`}>
+              <LoopImage src={refreshIcon} animating={!state.paused} rotateSpeed={state.tickSpeed} />
               <code>Event Loop</code>
             </div>
-            <div>Render queue</div>
+            <div className={padding8}>Render queue</div>
             <div className={callQueueClass}>
-              {renderQueue.map((task, i) => (
+              {state.renderQueue.map((task, i) => (
                 <QueueTaskBlock key={i} color={task.color}>
                   <code>{task.title}</code>
                 </QueueTaskBlock>
               ))}
+            </div>
+            <div className={padding16}>
+              <Code type={state.renderQueueInfo.type}>{state.renderQueueInfo.text}</Code>
             </div>
           </div>
         </div>

@@ -52,13 +52,13 @@ const ClockContainer = ({ history, location }) => {
     return null;
   }
 
-  const isAtRuntimeViz = location.pathname.indexOf('runtime-viz') > -1;
-  const redirectText = isAtRuntimeViz ? 'Go back home' : 'Go to runtime-viz';
+  const isAtRuntimeViz = location.pathname.indexOf('browser-visualization') > -1;
+  const redirectText = isAtRuntimeViz ? 'Go back home' : 'Go to browser visualization';
   const handleRedirect = () => {
     if (isAtRuntimeViz) {
       history.push('/');
     } else {
-      history.push('/runtime-viz');
+      history.push('/browser-visualization');
     }
   }
 

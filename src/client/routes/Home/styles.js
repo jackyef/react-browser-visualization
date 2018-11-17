@@ -26,4 +26,8 @@ export const Container = styled.div`
       text-decoration: none;
     }
   }
+
+  code {
+    background: #b3b3b3;
+  }
 `;

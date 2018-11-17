@@ -80,6 +80,10 @@ export const fillRemaining = css`
   overflow: scroll;
 `;
 
+export const alignSelfLeft = css`
+  align-self: flex-start;
+`;
+
 export const userAction = css`
   width: 240px;
   display: flex;
@@ -169,3 +173,61 @@ export const flexCenter = css`
 export const width400 = css`
   width: 400px;
 `;
+
+export const padding16 = css`
+  padding: 16px;
+`;
+
+export const padding8 = css`
+  padding: 8px;
+`;
+
+export const marginLeft16 = css`
+  margin-left: 16px;
+`;
+
+export const scaleOut = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+export const Code = styled.code`
+  color: ${props => {
+    switch (props.type) {
+      case 'error': return '#bc031c';
+      case 'success': return '#22a559';
+      default: return 'inherit';
+    }
+  }};
+  display: block;
+  animation: ${scaleOut} .5s;
+`;
+
+export const inputContainer = css`
+  margin-top: 16px;
+  width: 100%;
+  display: flex;
+  font-size: 32px
+  justify-content: space-between;
+  align-items: center;
+
+  > input {
+    display: block;
+    font-size: 32px;
+    flex: 1 1 auto;
+    width: 92px;
+    margin-right: 8px;
+  }
+
+  > div {
+    width: 32px;
+  }
+`;
+
