@@ -130,7 +130,7 @@ const RuntimeVizView = () => {
       // generate task for next frame
       const newFrameNumber = Number(clonedRenderQueue[clonedRenderQueue.length - 1].title.split('#')[1]) + 1;
 
-      clonedRenderQueue.push(createTask('render', `frame #${newFrameNumber}`));
+      clonedRenderQueue.push(createTask('render', `Frame #${newFrameNumber}`));
 
       if (isCallStackEmpty) {
         // enqueue render to main thread
@@ -222,12 +222,16 @@ const RuntimeVizView = () => {
     tickTimeoutRef.current = null;
   };
 
+  console.log('render');
+
   useEffect(() => {
+    console.log('effect');
     if (!tickTimeoutRef.current) {
       tickTimeoutRef.current = setTimeout(processTick, state.tickSpeed);
     }
 
     return () => {
+      console.log('cleanup');
       if (!tickTimeoutRef.current) {
         clearTimeout(tickTimeoutRef.current);
         tickTimeoutRef.current = null;
