@@ -3,6 +3,8 @@
 This is a react project that includes a visualization of how browser process works
 and also used to play around with React Hooks.
 
+![image](https://user-images.githubusercontent.com/7252454/48788338-37c08b00-ed1d-11e8-9bc0-42fde71e52e6.png)
+
 This project is mainly used for Tokopedia Talk at 23rd November 2018.
 
 To start playing around on your local machine, just run:
