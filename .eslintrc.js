@@ -8,7 +8,7 @@ module.exports = {
       jsx: true,
     },
   },
-  plugins: ['react', 'import', 'jest'],
+  plugins: ['react', 'import', 'jest', 'react-hooks'],
   env: {
     amd: true,
     browser: true,
@@ -23,6 +23,7 @@ module.exports = {
     'import/extensions': ['.js', '.jsx'],
   },
   rules: {
+    'react-hooks/rules-of-hooks': 'error',
     'block-scoped-var': 2,
     curly: [2, 'all'],
     eqeqeq: 2,

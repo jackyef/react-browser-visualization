@@ -80,8 +80,8 @@ const HookView = ({ history }) => {
 
   return (
     <Container>
-      <h1>Hook</h1>
-      <button onClick={() => history.push('/not-hook')}>go to non-hook version</button> <br/>
+      <h1>Using Hook</h1>
+      <button onClick={() => history.push('/not-hook')}>go to class component version</button> <br/>
       <button onClick={incrementCounter}>trigger jank with useLayoutEffect(): {counter}</button> <br/>
       <button onClick={incrementCounter2}>trigger jank with useEffect(): {counter2}</button> <br />
       <button onClick={toggleInfiniteSetState}>infinite setState: {isInfinite ? 'ON' : 'OFF'}</button> <br />

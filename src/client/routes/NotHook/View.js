@@ -77,7 +77,7 @@ class NotHookView extends React.Component {
 
     return (
       <Container>
-        <h1>Not Hook</h1>
+        <h1>Class Component</h1>
         <button onClick={() => history.push('/hook')}>go to hook version</button> <br/>
         <button onClick={incrementCounter}>increment counter: {counter}</button> <br/>
         <button onClick={incrementCounter2}>increment counter2: {counter2}</button> <br />
