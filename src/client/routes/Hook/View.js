@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
 
 import { triggerJank } from '../../helpers';
 import { Container } from './styles';
 import Wallpaper from '../../components/Wallpaper';
+
+window.prevDoHeavyStuff = undefined;
 
 const HookView = ({ history }) => {
   // counter 1 region
@@ -71,12 +73,20 @@ const HookView = ({ history }) => {
       triggerJank();
       setInfinite(true);
     }
-  })
+  });
 
   const toggleInfiniteSetState = () => {
     console.log('toggled isInfinite');
     setInfinite(!isInfinite);
   }
+  
+  const doHeavyStuff = useCallback(() => {
+    triggerJank(5000);
+    window.prevDoHeavyStuff = doHeavyStuff;
+    console.log('heavy stuff done');
+  }, [1]);
+
+  console.log('same reference as previous?', window.prevDoHeavyStuff === doHeavyStuff)
 
   return (
     <Container>
@@ -87,7 +97,7 @@ const HookView = ({ history }) => {
       <button onClick={toggleInfiniteSetState}>infinite setState: {isInfinite ? 'ON' : 'OFF'}</button> <br />
       <button onClick={doAsyncStuff}>{asyncData.loading ? 'loading...' : 'do async stuffs'}</button> <br />
       {asyncData.success && !asyncData.loading ? 'success' : ''}
-
+      <button onClick={doHeavyStuff}>Save current doHeavyStuff() reference to window object</button> <br />
       <Wallpaper />
     </Container>
   )
