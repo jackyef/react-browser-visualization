@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import { triggerJank } from '../../helpers';
 import { Container } from './styles';
@@ -25,9 +24,11 @@ class NotHookView extends React.Component {
     const { isInfinite, counter2 } = this.state;
 
     if (isInfinite && this.isInfinite) {
+      // Commented for now, intended to be un-commented during the talk to show the behavior
       // requestAnimationFrame(() => {
       //   requestAnimationFrame(() => {
           triggerJank();
+          // eslint-disable-next-line
           this.setState({ isInfinite: true });
       //   });
       // });

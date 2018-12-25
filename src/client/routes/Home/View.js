@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { object } from 'prop-types';
 
 import { Container } from './styles';
 
@@ -17,5 +18,9 @@ class Home extends Component {
     )
   }
 }
+
+Home.propTypes = {
+  history: object.isRequired,
+};
 
 export default Home;

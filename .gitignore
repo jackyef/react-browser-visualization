@@ -8,5 +8,6 @@ build/
 # env
 .env
 
-# error logs
+# logs
+*.log
 yarn-error.log

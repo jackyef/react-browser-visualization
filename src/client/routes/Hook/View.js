@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { object } from 'prop-types';
 
 import { triggerJank } from '../../helpers';
 import { Container } from './styles';
 import Wallpaper from '../../components/Wallpaper';
 
-window.prevDoHeavyStuff = undefined;
-
 const HookView = ({ history }) => {
   // counter 1 region
+  console.log('render called');
   const [counter, setCounter] = useState(0);
   const incrementCounter = () => {
     setCounter(counter + 1);
@@ -82,11 +82,8 @@ const HookView = ({ history }) => {
   
   const doHeavyStuff = useCallback(() => {
     triggerJank(5000);
-    window.prevDoHeavyStuff = doHeavyStuff;
     console.log('heavy stuff done');
   }, [1]);
-
-  console.log('same reference as previous?', window.prevDoHeavyStuff === doHeavyStuff)
 
   return (
     <Container>
@@ -102,5 +99,9 @@ const HookView = ({ history }) => {
     </Container>
   )
 }
+
+HookView.propTypes = {
+  history: object.isRequired,
+};
 
 export default HookView;
